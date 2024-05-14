@@ -220,7 +220,7 @@ namespace MQTTnet.Formatter.V5
             var packet = new MqttConnectPacket
             {
                 // If the Request Problem Information is absent, the value of 1 is used.
-                RequestProblemInformation = true 
+                RequestProblemInformation = true
             };
 
             var protocolName = _bufferReader.ReadString();
@@ -352,7 +352,10 @@ namespace MQTTnet.Formatter.V5
 
         MqttPacket DecodeDisconnectPacket(ArraySegment<byte> body)
         {
-            ThrowIfBodyIsEmpty(body);
+            if (body.Count == 0)
+            {
+                return new MqttDisconnectPacket();
+            }
 
             _bufferReader.SetBuffer(body.Array, body.Offset, body.Count);
 
@@ -386,7 +389,7 @@ namespace MQTTnet.Formatter.V5
 
             return packet;
         }
-        
+
         MqttPacket DecodePubAckPacket(ArraySegment<byte> body)
         {
             ThrowIfBodyIsEmpty(body);
@@ -724,7 +727,7 @@ namespace MQTTnet.Formatter.V5
             packet.UserProperties = propertiesReader.CollectedUserProperties;
 
             packet.ReasonCodes = new List<MqttUnsubscribeReasonCode>(_bufferReader.BytesLeft);
-            
+
             while (!_bufferReader.EndOfStream)
             {
                 var reasonCode = (MqttUnsubscribeReasonCode)_bufferReader.ReadByte();
